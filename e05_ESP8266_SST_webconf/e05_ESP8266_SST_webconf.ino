@@ -17,6 +17,10 @@
 #define T3N_HYSTERESIS_INSKETCH
 	#define Souliss_T3n_Hysteresis      0.1     // Degrees Hysteresis
 
+//Uncomment to use:
+//added language support: en_us
+//#define LANG_en_US
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
