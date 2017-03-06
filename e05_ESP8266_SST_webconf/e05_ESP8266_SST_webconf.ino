@@ -32,6 +32,11 @@
 #include "preferences.h"
 #include "multiClick.h"
 
+// Reboot if no network
+#define VNET_RESETTIME_INSKETCH
+#define VNET_RESETTIME 0x00042F7 // ((20 Min*60)*1000)/70ms = 17143 => 42F7
+#define VNET_HARDRESET ESP.reset()
+
 #if(DYNAMIC_CONNECTION)
 #include "conf/RuntimeGateway.h"            // This node is a Peer and can became a Gateway at runtime
 #include "conf/DynamicAddressing.h"         // Use dynamically assigned addresses
@@ -418,7 +423,7 @@ void loop()
             if (getLayout1()) {
               SERIAL_OUT.println("display_setpointPage - layout 1");
               display_layout1_background(ucg, arrotonda(getEncoderValue()) - arrotonda(setpoint));
-			  
+
               display_layout1_setpointPage(ucg, getEncoderValue(), temperature, humidity, getSoulissSystemState());
             }
             else if (getLayout2()) {
@@ -552,7 +557,7 @@ void loop()
               setUIChanged();
               menu = 0;
             }
-	  yield();	  
+	  yield();
           }
           //restore encoder value
           setEncoderValue(setpoint);
@@ -591,7 +596,7 @@ void loop()
       //*************************************************************************
       //*************************************************************************
       Logic_Thermostat(SLOT_THERMOSTAT);
-            
+
       // Start the heater and the fans
       nDigOut(RELE, Souliss_T3n_HeatingOn, SLOT_THERMOSTAT);    // Heater
 
@@ -827,5 +832,3 @@ void loop()
   ArduinoOTA.handle();
   yield();
 }
-
-
