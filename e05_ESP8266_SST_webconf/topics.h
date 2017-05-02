@@ -1,13 +1,16 @@
 #include <Arduino.h>
+#include "tools/types.h"
 
 //PUBLISH&SUBSCRIBE TOPICS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define TOPIC1 0xF001,0x05
-#define TOPIC2 0xF001,0x06
-#define TOPIC3 0xF001,0x07
-#define TOPIC4 0xF001,0x08
-#define TOPIC5 0xF001,0x09
-#define TOPIC6 0xF001,0x0A
+const int TOPICS[6][3] = {
+   0xF001,0x05, 0xf55e7a, //TOPIC1
+   0xF001,0x06, 0xf55e6b, //TOPIC2
+   0xF001,0x07, 0xf55e7c, //TOPIC3
+   0xF001,0x08, 0xf55e80, //TOPIC4
+   0xF001,0x09, 0xf55e91, //TOPIC5
+   0xF001,0x0A, 0xf55e9b  //TOPIC6
+};
 
 #define SST_HEAT_ONOFF 0xF001,0x0B
 U8 HEAT_ON = 0X01;
