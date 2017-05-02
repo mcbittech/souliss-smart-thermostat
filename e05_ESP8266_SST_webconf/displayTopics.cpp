@@ -61,7 +61,7 @@ void display_print(Ucglib_ILI9341_18x240x320_HWSPI ucg, float fVal, int idx) {
   String str = "    "; //4 cifre
   const char *c = str.c_str();
   iPortion = getHeightPortion(&ucg);
-  ibaseH = ucg.getHeight()  + iPortion * (idx - 2) - iPortion / 2 + ucg.getFontAscent() / 2;
+  ibaseH = ucg.getHeight()  + iPortion * (idx % 3 - 2) - iPortion / 2 + ucg.getFontAscent() / 2;
 
   ucg.setPrintPos(5 , ibaseH);
   SERIAL_OUT.println("IBASEH:"+String(ibaseH));
@@ -72,24 +72,24 @@ void display_print(Ucglib_ILI9341_18x240x320_HWSPI ucg, float fVal, int idx) {
 
 float fPrec_Value[6] = {};
 
-void displayTopics(Ucglib_ILI9341_18x240x320_HWSPI ucg, int offset, float fSetpoint_Output[6]) {
+void displayTopics(Ucglib_ILI9341_18x240x320_HWSPI ucg, int offset, float fTopic_Output[6]) {
   setOnetime_clear_SetpointPage();
   if ( getUIChanged()) {
     ucg.clearScreen();
     SERIAL_OUT.println("TOPICS PAGE " + String(offset / 3 + 1) + " - ClearScreen");
-    display_print(ucg, fSetpoint_Output[offset+0], offset+0);
-    display_print(ucg, fSetpoint_Output[offset+1], offset+1);
-    display_print(ucg, fSetpoint_Output[offset+2], offset+2);
+    display_print(ucg, fTopic_Output[offset+0], offset+0);
+    display_print(ucg, fTopic_Output[offset+1], offset+1);
+    display_print(ucg, fTopic_Output[offset+2], offset+2);
     resetUIChanged();
   } else {
-    if (fPrec_Value[offset+0] != fSetpoint_Output[offset+0]) display_print(ucg, fSetpoint_Output[offset+0], offset+0);
-    if (fPrec_Value[offset+1] != fSetpoint_Output[offset+1]) display_print(ucg, fSetpoint_Output[offset+1], offset+1);
-    if (fPrec_Value[offset+2] != fSetpoint_Output[offset+2]) display_print(ucg, fSetpoint_Output[offset+2], offset+2);
+    if (fPrec_Value[offset+0] != fTopic_Output[offset+0]) display_print(ucg, fTopic_Output[offset+0], offset+0);
+    if (fPrec_Value[offset+1] != fTopic_Output[offset+1]) display_print(ucg, fTopic_Output[offset+1], offset+1);
+    if (fPrec_Value[offset+2] != fTopic_Output[offset+2]) display_print(ucg, fTopic_Output[offset+2], offset+2);
   }
 
-  fPrec_Value[offset+0] = fSetpoint_Output[offset+0];
-  fPrec_Value[offset+1] = fSetpoint_Output[offset+1];
-  fPrec_Value[offset+2] = fSetpoint_Output[offset+2];
+  fPrec_Value[offset+0] = fTopic_Output[offset+0];
+  fPrec_Value[offset+1] = fTopic_Output[offset+1];
+  fPrec_Value[offset+2] = fTopic_Output[offset+2];
 }
 
 void displayTopicsHomePageLayout2(Ucglib_ILI9341_18x240x320_HWSPI ucg, float f_Value[6], boolean forcerefresh) {
