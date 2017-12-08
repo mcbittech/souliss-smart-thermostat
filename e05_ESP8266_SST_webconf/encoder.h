@@ -4,5 +4,5 @@
 
 float getEncoderValue();
 void setEncoderValue(float);
-void encoder();
+void encoder(bool);
 

@@ -102,23 +102,23 @@ Ucglib_ILI9341_18x240x320_HWSPI ucg(/*cd=*/ 2 , /*cs=*/ 15);
 //WBServer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#ifndef DYNAMIC_CONNECTION
- AsyncWebServer server(80);
+AsyncWebServer server(80);
 //#endif
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 File fsUploadFile;
 uint8_t buff{};
 
-String S_temperature_WBS="22.3";
-String S_setpoint_WBS="22.4";
-bool S_relestatus_WBS=0;
-String S_humidity_WBS="58.8";
+String S_temperature_WBS = "22.3";
+String S_setpoint_WBS = "22.4";
+bool S_relestatus_WBS = 0;
+String S_humidity_WBS = "58.8";
 String S_nextstep_WBS;
 String S_filena_WBS;
-bool B_away_WBS=0;
-bool B_powerfull_WBS=0;
-bool B_is_away_WBS=0;
-bool B_is_powerfull_WBS=0;
+bool B_away_WBS = 0;
+bool B_powerfull_WBS = 0;
+bool B_is_away_WBS = 0;
+bool B_is_powerfull_WBS = 0;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -146,6 +146,8 @@ void setup()
     ReadAllSettingsFromSPIFFS();
     ReadCronoMatrixSPIFFS();
     backLEDvalueLOW = getDisplayBright();
+    setpoint = getSetpointFromSPIFFS();
+    setEncoderValue(setpoint);
   }
 
   //DISPLAY INIT
@@ -216,10 +218,10 @@ void setup()
   initMenu();
   myMenu = getMenu();
 
-  
-  //OTA-WBServer  
+
+  //OTA-WBServer
   setup_OTA_WBServer();
-  
+
   // Init HomeScreen
   initScreen();
 }
@@ -271,13 +273,12 @@ void loop()
           break;
         case PAGE_CRONO :
           break;
-        default:
+        case PAGE_HOME:
           if (arrotonda(getEncoderValue()) != arrotonda(encoderValue_prec) && !bChildLock) {
             FADE = 1;
             //TICK TIMER
             timerDisplay_setpoint_Tick();
             //SETPOINT PAGE ////////////////////////////////////////////////////////////////
-
             if (getLayout1()) {
               SERIAL_OUT.println("display_setpointPage - layout 1");
               display_layout1_background(ucg, arrotonda(getEncoderValue()) - arrotonda(setpoint));
@@ -289,6 +290,8 @@ void loop()
             }
           }
           encoderValue_prec = getEncoderValue();
+          break;
+        default :
           break;
       }
     }
@@ -313,7 +316,7 @@ void loop()
           setSoulissDataChanged();
         }
       }
-      S_setpoint_WBS=setpoint;
+      S_setpoint_WBS = setpoint;
     }
 
 
@@ -415,7 +418,7 @@ void loop()
               setUIChanged();
               menu = 0;
             }
-          yield();  
+            yield();
           }
           //restore encoder value
           setEncoderValue(setpoint);
@@ -455,8 +458,8 @@ void loop()
       //*************************************************************************
       Logic_Thermostat(SLOT_THERMOSTAT);
       // Start the heater and the fans
-      nDigOut(RELE, Souliss_T3n_HeatingOn, SLOT_THERMOSTAT);    // Heater 
-      S_relestatus_WBS=(mOutput(SLOT_THERMOSTAT) & Souliss_T3n_HeatingOn);//to WBServer
+      nDigOut(RELE, Souliss_T3n_HeatingOn, SLOT_THERMOSTAT);    // Heater
+      S_relestatus_WBS = (mOutput(SLOT_THERMOSTAT) & Souliss_T3n_HeatingOn); //to WBServer
 
 
       // We are not handling the cooling mode, if enabled by the user, force it back
@@ -490,13 +493,11 @@ void loop()
 
         //write system ON/OFF
         if (getLocalSystem()) {
-
           //ON
           SERIAL_OUT.println("Set system ON ");
           set_ThermostatModeOn(SLOT_THERMOSTAT);        // Set System On
 
         } else {
-
           //OFF
           SERIAL_OUT.println("Set system OFF ");
           set_ThermostatOff(SLOT_THERMOSTAT);
@@ -507,7 +508,6 @@ void loop()
         SERIAL_OUT.println("Init Screen");
         setUIChanged();
         initScreen();
-
         resetSystemChanged();
       }
     }
@@ -629,6 +629,7 @@ void loop()
 
       switch (SSTPage.actualPage) {
         case PAGE_HOME:
+          on_change_setPoint(arrotonda(setpoint));//Provo a salvare il nuovo setpoint.
           if (getLayout2()) {
             display_layout2_print_circle_white(ucg);
             display_layout2_print_circle_black(ucg);
@@ -648,44 +649,44 @@ void loop()
 
           }
       }
-      if ((B_away_WBS==0 && B_powerfull_WBS==0)) {
+      if ((B_away_WBS == 0 && B_powerfull_WBS == 0)) {
         if (getCrono()) {
-          B_is_away_WBS=0;
-          B_is_powerfull_WBS=0;
-          mOutput(SLOT_AWAY)=Souliss_T1n_OffCmd;
+          B_is_away_WBS = 0;
+          B_is_powerfull_WBS = 0;
+          mOutput(SLOT_AWAY) = Souliss_T1n_OffCmd;
           Serial.println("CRONO: aggiornamento");
           setSetpoint(checkNTPcrono(ucg));
           setEncoderValue(checkNTPcrono(ucg));
           Serial.print("CRONO: setpoint: "); Serial.println(setpoint);
         }
-      }else{
+      } else {
         //getAWAYtemperature
         //getPOWERFULLtemperature
-        if (B_is_away_WBS==1 && memory_map[MaCaco_OUT_s + SLOT_AWAY]==0) {
-          B_away_WBS=0;
-          B_is_away_WBS=0;
-          mOutput(SLOT_AWAY)=Souliss_T1n_OffCmd;
+        if (B_is_away_WBS == 1 && memory_map[MaCaco_OUT_s + SLOT_AWAY] == 0) {
+          B_away_WBS = 0;
+          B_is_away_WBS = 0;
+          mOutput(SLOT_AWAY) = Souliss_T1n_OffCmd;
           Serial.println("AWAY function OFF");
         }
-        if (B_away_WBS==1 || memory_map[MaCaco_OUT_s + SLOT_AWAY]==1) {
-          B_is_away_WBS=1;
-          B_powerfull_WBS=0;
-          B_is_powerfull_WBS=0;
-          mOutput(SLOT_AWAY)=Souliss_T1n_OnCmd;
+        if (B_away_WBS == 1 || memory_map[MaCaco_OUT_s + SLOT_AWAY] == 1) {
+          B_is_away_WBS = 1;
+          B_powerfull_WBS = 0;
+          B_is_powerfull_WBS = 0;
+          mOutput(SLOT_AWAY) = Souliss_T1n_OnCmd;
           setSetpoint(getAWAYtemperature());
           setEncoderValue(getAWAYtemperature());
-          Serial.print("AWAY function ON, Setpoint to: ");Serial.println(setpoint);
+          Serial.print("AWAY function ON, Setpoint to: "); Serial.println(setpoint);
         }
-        if (B_powerfull_WBS==1) {
-          B_away_WBS=0;
-          B_is_away_WBS=0;          
-          B_is_powerfull_WBS=1;
+        if (B_powerfull_WBS == 1) {
+          B_away_WBS = 0;
+          B_is_away_WBS = 0;
+          B_is_powerfull_WBS = 1;
           setSetpoint(getPOWERFULLtemperature());
-          setEncoderValue(getPOWERFULLtemperature());          
-          Serial.print("Powerfull function ON, Setpoint to: ");Serial.println(setpoint);
+          setEncoderValue(getPOWERFULLtemperature());
+          Serial.print("Powerfull function ON, Setpoint to: "); Serial.println(setpoint);
         }
       }
-      
+
     }//end SLOW_50s
 
     SLOW_70s() {
@@ -702,13 +703,13 @@ void loop()
             }
           }
       }
-      
+
 
     }
 
-    SLOW_x10s(59){
+    SLOW_x10s(59) {
       //DATALOGGER
-      save_datalogger(setpoint,temperature,humidity,(mOutput(SLOT_THERMOSTAT) & Souliss_T3n_HeatingOn));
+      save_datalogger(setpoint, temperature, humidity, (mOutput(SLOT_THERMOSTAT) & Souliss_T3n_HeatingOn));
     }
 
     SLOW_15m() {
@@ -729,7 +730,7 @@ void loop()
 }
 
 
-void SST_Reset() {  
+void SST_Reset() {
   spiffs_Reset();
   ESP.reset();
 }
@@ -785,7 +786,7 @@ void set_DisplayMinBright(U8 slot, U8 val) {
 }
 
 void encoderFunction() {
-  encoder();
+  encoder(getMenuEnabled());
 }
 
 boolean getSoulissSystemState() {
@@ -834,7 +835,7 @@ void initScreen() {
   SERIAL_OUT.println("clearScreen ok");
   if (getLayout1()) {
     SERIAL_OUT.println("HomeScreen Layout 1");
-
+    
     display_layout1_HomeScreen(ucg, temperature, humidity, setpoint, getSoulissSystemState(), bChildLock);
     getTemp();
   }
@@ -878,69 +879,69 @@ void publishHeating_ON_OFF() {
 
 //WBServer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  if(type == WS_EVT_CONNECT){
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
     client->printf("Hello Client %u :)", client->id());
     client->ping();
-  } else if(type == WS_EVT_DISCONNECT){
+  } else if (type == WS_EVT_DISCONNECT) {
     Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
-  } else if(type == WS_EVT_ERROR){
+  } else if (type == WS_EVT_ERROR) {
     Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-  } else if(type == WS_EVT_PONG){
-    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-  } else if(type == WS_EVT_DATA){
+  } else if (type == WS_EVT_PONG) {
+    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len) ? (char*)data : "");
+  } else if (type == WS_EVT_DATA) {
     AwsFrameInfo * info = (AwsFrameInfo*)arg;
     String msg = "";
-    if(info->final && info->index == 0 && info->len == len){
+    if (info->final && info->index == 0 && info->len == len) {
       //the whole message is in a single frame and we got all of it's data
-      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
+      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
 
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
+      if (info->opcode == WS_TEXT) {
+        for (size_t i = 0; i < info->len; i++) {
           msg += (char) data[i];
         }
       } else {
         char buff[3];
-        for(size_t i=0; i < info->len; i++) {
+        for (size_t i = 0; i < info->len; i++) {
           sprintf(buff, "%02x ", (uint8_t) data[i]);
           msg += buff ;
         }
       }
-      Serial.printf("%s\n",msg.c_str());
+      Serial.printf("%s\n", msg.c_str());
 
-      if(info->opcode == WS_TEXT)
+      if (info->opcode == WS_TEXT)
         client->text("I got your text message");
       else
         client->binary("I got your binary message");
     } else {
       //message is comprised of multiple frames or the frame is split into multiple packets
-      if(info->index == 0){
-        if(info->num == 0)
-          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
+      if (info->index == 0) {
+        if (info->num == 0)
+          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
         Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
       }
 
-      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
+      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
 
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
+      if (info->opcode == WS_TEXT) {
+        for (size_t i = 0; i < info->len; i++) {
           msg += (char) data[i];
         }
       } else {
         char buff[3];
-        for(size_t i=0; i < info->len; i++) {
+        for (size_t i = 0; i < info->len; i++) {
           sprintf(buff, "%02x ", (uint8_t) data[i]);
           msg += buff ;
         }
       }
-      Serial.printf("%s\n",msg.c_str());
+      Serial.printf("%s\n", msg.c_str());
 
-      if((info->index + len) == info->len){
+      if ((info->index + len) == info->len) {
         Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
-        if(info->final){
-          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-          if(info->message_opcode == WS_TEXT)
+        if (info->final) {
+          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+          if (info->message_opcode == WS_TEXT)
             client->text("I got your text message");
           else
             client->binary("I got your binary message");
@@ -949,15 +950,15 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
   }
 }
-void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
-    Serial.printf("Void HandleBody:");
-  if(!index){
+void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+  Serial.printf("Void HandleBody:");
+  if (!index) {
     Serial.printf("BodyStart: %u B\n", total);
   }
-  for(size_t i=0; i<len; i++){
+  for (size_t i = 0; i < len; i++) {
     Serial.write(data[i]);
   }
-  if(index + len == total){
+  if (index + len == total) {
     Serial.printf("BodyEnd: %u B\n", total);
   }
   yield();

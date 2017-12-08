@@ -23,6 +23,7 @@ int tZone;
 boolean bDayLightSavingTime;
 boolean bDoSystemReset=false;
 float fOffsetDHT;
+float fsetpoint;
 
 // Menu variables
 MenuSystem ms;
@@ -139,64 +140,64 @@ void on_itemBack_selected(MenuItem* p_menu_item)
 void on_item_perc100_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 100;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_perc80_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 80;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_perc60_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 60;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 
 }
 
 void on_item_perc50_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 50;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_perc30_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 30;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_perc5_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 5;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_perc2_selected(MenuItem* p_menu_item)
 {
   iDisplayBright = 2;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_clockON_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_clockON_selected");
   bClock = true;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 void on_item_clockOFF_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_clockOFF_selected");
   bClock = false;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_Timezone0_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_Timezone0_selected");
   tZone = 0;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 
@@ -204,28 +205,28 @@ void on_item_Timezone1_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_Timezone1_selected");
   tZone = 1;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 void on_item_Timezone2_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_Timezone2_selected");
   tZone = 2;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 void on_item_Timezone3_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_Timezone3_selected");
   tZone = 3;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 void on_item_Timezone4_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_Timezone4_selected");
   tZone = 4;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 
@@ -233,7 +234,7 @@ void on_item_DayLightSavingTimeON_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_DayLightSavingTimeON");
   bDayLightSavingTime = true;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 
@@ -241,7 +242,7 @@ void on_item_DaylightSavingTimeOFF_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_DaylightSavingTimeOFF");
   bDayLightSavingTime = false;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
   initNTP();
 }
 
@@ -252,7 +253,7 @@ void on_item_cronoON_selected(MenuItem* p_menu_item)
   bCrono = true;
   SERIAL_OUT.print("Variabile bCrono:");
   SERIAL_OUT.println(bCrono);
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 void on_item_cronoOFF_selected(MenuItem* p_menu_item)
 {
@@ -260,7 +261,7 @@ void on_item_cronoOFF_selected(MenuItem* p_menu_item)
   bCrono = false;
   SERIAL_OUT.print("Variabile bCrono:");
   SERIAL_OUT.println(bCrono);
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_cronoSET_selected(MenuItem* p_menu_item)
@@ -285,21 +286,21 @@ void on_item_cronoLEARN_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_cronoLEARN_selected");
   bCronoLearn = true;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_systemEnabledON_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_systemEnabledON_selected");
   setSystem(true);
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_systemEnabledOFF_selected(MenuItem* p_menu_item)
 {
   SERIAL_OUT.println("on_item_systemEnabledOFF_selected");
   setSystem(false);
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_layout1_selected(MenuItem* p_menu_item)
@@ -307,7 +308,7 @@ void on_item_layout1_selected(MenuItem* p_menu_item)
   SERIAL_OUT.println("on_item_layout1_selected");
   bLayout1 = true;
   bLayout2 = false;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
 void on_item_layout2_selected(MenuItem* p_menu_item)
@@ -315,9 +316,26 @@ void on_item_layout2_selected(MenuItem* p_menu_item)
   SERIAL_OUT.println("on_item_layout2_selected");
   bLayout1 = false;
   bLayout2 = true;
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,fsetpoint);
 }
 
+void on_change_setPoint(float setPoint)
+{
+  
+  SERIAL_OUT.println("on_change_setPoint - Salvo in SPIFFS il setpoint");
+  if(fsetpoint != setPoint){
+    save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,setPoint);
+  }else{
+    SERIAL_OUT.println("setPoint same, no save");
+  }
+  fsetpoint = setPoint;
+}
+/*
+ * Get setpoint saved on SPIFFS
+ */
+float getSetpointFromSPIFFS(){
+  return fsetpoint;
+}
 void on_item_system1_selected(MenuItem* p_menu_item)
 {
   bDoSystemReset=true;
@@ -504,7 +522,7 @@ void ReadAllSettingsFromPreferences() {
   bDayLightSavingTime = DAYLIGHTSAVINGTIME;
   fOffsetDHT = OFFSET_DHT;
 
-  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT);
+  save_spiffs_prefs(iDisplayBright, bClock, tZone, bDayLightSavingTime, bCrono, bCronoLearn, bSystem, bLayout1, bLayout2, fOffsetDHT,20);
 }
 void ReadAllSettingsFromSPIFFS() {
   //SPIFFS
@@ -520,4 +538,5 @@ void ReadAllSettingsFromSPIFFS() {
   tZone = read_spiffs_prefs("Tzone");
   bDayLightSavingTime = read_spiffs_prefs("DayLightSavingTime");
   fOffsetDHT = read_spiffs_prefs("OffsetDHT");
+  fsetpoint = read_spiffs_prefs("SetPoint");
 }

@@ -41,7 +41,8 @@ void display_layout2_Setpoint(Ucglib_ILI9341_18x240x320_HWSPI ucg, float setpoin
               ucg.setFontMode(UCG_FONT_MODE_SOLID);
               ucg.setPrintPos(25, 52);
               ucg.setFont(ucg_font_inb21_mr);
-              ucg.print("Sp"); ucg.print(setpoint, 1);
+              //Verifico se il setpoint ha meno di 2 cifre e aggiungo uno spazio per appagamento estetico.
+              ucg.print(Math.abs(setpoint)/10<1 ? "Sp " : "Sp" ); ucg.print(setpoint, 1);
               ucg.setFont(ucg_font_profont11_mr);
               ucg.setPrintPos(135, 36);
               ucg.print("o");

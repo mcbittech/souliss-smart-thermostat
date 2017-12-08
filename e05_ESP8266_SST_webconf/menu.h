@@ -41,3 +41,6 @@ void printMenuMove(Ucglib_ILI9341_18x240x320_HWSPI);
 void printMenu(Ucglib_ILI9341_18x240x320_HWSPI);
 void ReadAllSettingsFromPreferences();
 void ReadAllSettingsFromSPIFFS();
+
+void on_change_setPoint(float);
+float getSetpointFromSPIFFS();

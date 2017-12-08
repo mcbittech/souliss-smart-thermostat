@@ -9,7 +9,7 @@ int encoder_PinALast = LOW;
 
 
 
-void encoder() {
+void encoder(bool getMenuEnabled){
     int MSB = digitalRead(ENCODER_PIN_B); //MSB = most significant bit
     int LSB = digitalRead(ENCODER_PIN_A); //LSB = least significant bit
 
@@ -21,6 +21,15 @@ void encoder() {
   
     encoder_PinALast = encoded; //store this value for next time
     encoderValue = encoder0Pos / 10.0;
+
+      if (!getMenuEnabled) {
+    if (encoderValue > MAXSETPOINT) {
+      encoderValue = MAXSETPOINT;
+    }
+    if (encoderValue < MINSETPOINT) {
+      encoderValue = MINSETPOINT;
+    }
+  }
 
 }
 
