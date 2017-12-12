@@ -6,7 +6,8 @@
 #include "menu.h"
 
 //Var Globali
-float oldsetpoint;
+//iniziallizzo a valore negativo così da riuscire a stamparlo sempre al primo ciclo.
+float oldsetpoint = -2000;
 
 float arrotonda2(const float v)
 {
@@ -22,87 +23,105 @@ float arrotonda2(const float v)
 
 int dopovirgola2(const float v)
 {
-  int iIrouded = v; 
-  float fIX10 = v * 10;   
-  int result; 
-  return result = fIX10 - (iIrouded*10); 
+  int iIrouded = v;
+  float fIX10 = v * 10;
+  int result;
+  return result = fIX10 - (iIrouded * 10);
 }
 
-void display_layout2_Setpoint(Ucglib_ILI9341_18x240x320_HWSPI ucg, float setpoint, boolean bSystemOn, boolean bChildLock) {
-  
-  
-  if (bSystemOn){
+void display_layout2_Setpoint(Ucglib_ILI9341_18x240x320_HWSPI ucg, float setpoint, boolean bSystemOn, boolean bChildLock, boolean bAway, boolean bPowerFull) {
 
-      if (!bChildLock) {
-    
-            if(setpoint!=oldsetpoint){
-             // SERIAL_OUT.print("Refresh Setpoint ");
-              ucg.setColor(0, 255, 255, 255);     // Bianco
-              ucg.setFontMode(UCG_FONT_MODE_SOLID);
-              ucg.setPrintPos(25, 52);
-              ucg.setFont(ucg_font_inb21_mr);
-              //Verifico se il setpoint ha meno di 2 cifre e aggiungo uno spazio per appagamento estetico.
-              ucg.print(abs(setpoint)/10<1 ? "Sp " : "Sp" ); ucg.print(setpoint, 1);
-              ucg.setFont(ucg_font_profont11_mr);
-              ucg.setPrintPos(135, 36);
-              ucg.print("o");
-           //   SERIAL_OUT.print("new setpoint: "); SERIAL_OUT.print(setpoint);SERIAL_OUT.print("  old setpoint: "); SERIAL_OUT.println(oldsetpoint);
-              oldsetpoint=setpoint;
-              }
-            }else{
-          
-            ucg.setColor(255, 0, 0);            // Rosso
-            ucg.setFontMode(UCG_FONT_MODE_SOLID);
-            ucg.setPrintPos(30, 52);
-            ucg.setFont(ucg_font_inb21_mr);
-            ucg.print(CHILDLOCK_TEXT); //necessario refresh dopo....
-            }
+
+  if (bSystemOn) {
+
+    if (!bChildLock) {
+      if (bAway) {
+        ucg.setColor(255, 255, 0);            // GIALLO
+        ucg.setFontMode(UCG_FONT_MODE_SOLID);
+        ucg.setPrintPos(25, 52);
+        ucg.setFont(ucg_font_inb21_mr);
+        ucg.print(AWAY_TEXT_LAYOUT2);
+        ucg.setFont(ucg_font_profont11_mr);
+        ucg.setPrintPos(135, 36);
+        ucg.print(" ");
+      } else if (bPowerFull) {
+        ucg.setColor(255, 255, 0);            // GIALLO
+        ucg.setFontMode(UCG_FONT_MODE_SOLID);
+        ucg.setPrintPos(25, 52);
+        ucg.setFont(ucg_font_inb21_mr);
+        ucg.print(POWERFULL_TEXT_LAYOUT2);
+        ucg.setFont(ucg_font_profont11_mr);
+        ucg.setPrintPos(135, 36);
+        ucg.print(" ");
       }
-      else{
-       //  SERIAL_OUT.print("Refresh Setpoint system OFF");
-       ucg.setColor(255, 0, 0);            // Rosso
-            ucg.setFontMode(UCG_FONT_MODE_SOLID);
-            ucg.setPrintPos(30, 52);
-            ucg.setFont(ucg_font_inb21_mr);
-            ucg.print(SYSTEM_OFF_TEXT_LAYOUT2);  
+      else if (setpoint != oldsetpoint) {
+        // SERIAL_OUT.print("Refresh Setpoint ");
+        ucg.setColor(0, 255, 255, 255);     // Bianco
+        ucg.setFontMode(UCG_FONT_MODE_SOLID);
+        ucg.setPrintPos(25, 52);
+        ucg.setFont(ucg_font_inb21_mr);
+        //Verifico se il setpoint ha meno di 2 cifre e aggiungo uno spazio per appagamento estetico.
+        ucg.print(abs(setpoint) / 10 < 1 ? "Sp " : "Sp" ); ucg.print(setpoint, 1);
+        ucg.setFont(ucg_font_profont11_mr);
+        ucg.setPrintPos(135, 36);
+        ucg.print("o");
+        //   SERIAL_OUT.print("new setpoint: "); SERIAL_OUT.print(setpoint);SERIAL_OUT.print("  old setpoint: "); SERIAL_OUT.println(oldsetpoint);
+        oldsetpoint = setpoint;
       }
-    
-  }  
+    } else {
+
+      ucg.setColor(255, 0, 0);            // Rosso
+      ucg.setFontMode(UCG_FONT_MODE_SOLID);
+      ucg.setPrintPos(30, 52);
+      ucg.setFont(ucg_font_inb21_mr);
+      ucg.print(CHILDLOCK_TEXT); //necessario refresh dopo....
+    }
+  }
+  else {
+    //  SERIAL_OUT.print("Refresh Setpoint system OFF");
+    ucg.setColor(255, 0, 0);            // Rosso
+    ucg.setFontMode(UCG_FONT_MODE_SOLID);
+    ucg.setPrintPos(30, 52);
+    ucg.setFont(ucg_font_inb21_mr);
+    ucg.print(SYSTEM_OFF_TEXT_LAYOUT2);
+  }
+
+}
 
 String s2PrevDisplay;
 time_t prev2Display = 0; // when the digital clock was displayed
 void display_layout2_print_datetime(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
- if (getClock()){
-  SERIAL_OUT.println("Refresh Clock "); 
-  ucg.setFontMode(UCG_FONT_MODE_SOLID);
-  ucg.setFont(FONT_SMALL);
-  ucg.setFontPosTop();
-  //NTP
-  String dateAndTime = "";
-  if (now() != prev2Display) { //update the display only if time has changed
-    prev2Display = now();
+  if (getClock()) {
+    SERIAL_OUT.println("Refresh Clock ");
+    ucg.setFontMode(UCG_FONT_MODE_SOLID);
+    ucg.setFont(FONT_SMALL);
+    ucg.setFontPosTop();
     //NTP
-    ////////////////////////////////////////////////////////////////////////////
-    String Time = "";
-    String Date = "";
-    Time = digitalClockDisplay_simple();
-    Date = digitalDataDisplay();
-    //ucg.setFont(ucg_font_inr19_mf);
-    ucg.setFont(ucg_font_helvB14_hf);
-    ucg.setColor(0, 255, 255, 255);       // Bianco
-    ucg.setPrintPos(160, 4);
-    ucg.print(Date);
-    //ucg.setFont(ucg_font_inb21_mr);
-    ucg.setFont(ucg_font_helvB18_hf);
-    ucg.setPrintPos(260, 4);
-    ucg.print(Time);
-    SERIAL_OUT.print("New Clock: "); SERIAL_OUT.println(Time);
+    String dateAndTime = "";
+    if (now() != prev2Display) { //update the display only if time has changed
+      prev2Display = now();
+      //NTP
+      ////////////////////////////////////////////////////////////////////////////
+      String Time = "";
+      String Date = "";
+      Time = digitalClockDisplay_simple();
+      Date = digitalDataDisplay();
+      //ucg.setFont(ucg_font_inr19_mf);
+      ucg.setFont(ucg_font_helvB14_hf);
+      ucg.setColor(0, 255, 255, 255);       // Bianco
+      ucg.setPrintPos(160, 4);
+      ucg.print(Date);
+      //ucg.setFont(ucg_font_inb21_mr);
+      ucg.setFont(ucg_font_helvB18_hf);
+      ucg.setPrintPos(260, 4);
+      ucg.print(Time);
+      SERIAL_OUT.print("New Clock: "); SERIAL_OUT.println(Time);
+    }
   }
- }
 }
 
 void display_layout2_print_circle_green(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
-  SERIAL_OUT.println("Refresh Circle Green "); 
+  SERIAL_OUT.println("Refresh Circle Green ");
   ucg.setColor(102, 255, 0);    // Verde Chiaro
   ucg.drawCircle(85, 120, 110, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 110, UCG_DRAW_ALL);
@@ -124,11 +143,11 @@ void display_layout2_print_circle_green(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
   ucg.drawCircle(85, 119, 118, UCG_DRAW_ALL);
   ucg.drawCircle(85, 120, 119, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 119, UCG_DRAW_ALL);
-  SERIAL_OUT.println("Refresh Circle Green OK "); 
+  SERIAL_OUT.println("Refresh Circle Green OK ");
 }
 
 void display_layout2_print_circle_white(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
-  SERIAL_OUT.println("Refresh Circle White "); 
+  SERIAL_OUT.println("Refresh Circle White ");
   ucg.setColor(255, 255, 255);    // Bianco
   ucg.drawCircle(85, 120, 119, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 119, UCG_DRAW_ALL);
@@ -150,11 +169,11 @@ void display_layout2_print_circle_white(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
   ucg.drawCircle(85, 119, 111, UCG_DRAW_ALL);
   ucg.drawCircle(85, 120, 110, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 110, UCG_DRAW_ALL);
-  SERIAL_OUT.println("Refresh Circle White OK "); 
+  SERIAL_OUT.println("Refresh Circle White OK ");
 }
 
 void display_layout2_print_circle_black(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
-  SERIAL_OUT.println("Refresh Circle Black "); 
+  SERIAL_OUT.println("Refresh Circle Black ");
   ucg.setColor(0, 0, 0);    // Nero
   ucg.drawCircle(85, 120, 119, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 119, UCG_DRAW_ALL);
@@ -176,7 +195,7 @@ void display_layout2_print_circle_black(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
   ucg.drawCircle(85, 119, 111, UCG_DRAW_ALL);
   ucg.drawCircle(85, 120, 110, UCG_DRAW_ALL);
   ucg.drawCircle(85, 119, 110, UCG_DRAW_ALL);
-  SERIAL_OUT.println("Refresh Circle Black OK "); 
+  SERIAL_OUT.println("Refresh Circle Black OK ");
 }
 
 
@@ -184,7 +203,7 @@ boolean flag_onetime2_HomeScreen = false;
 float temp2_prec = 0;
 float setpoint2_prec = 0;
 void display_layout2_HomeScreen(Ucglib_ILI9341_18x240x320_HWSPI ucg, float temperature, float humidity, float setpoint) {
-  SERIAL_OUT.println("Refresh HOME Screen "); 
+  SERIAL_OUT.println("Refresh HOME Screen ");
   //uso flag_onetime per visualizzare almeno una volta la schermata, anche in assenza di variazione di temperatura
   //flag_onetime_HomeScreen è rimessa a false display_layout1_setpointPage
   if (arrotonda2(temperature) != arrotonda2(temp2_prec) || (arrotonda2(setpoint) != arrotonda2(setpoint2_prec))) {
@@ -224,7 +243,7 @@ void display_layout2_HomeScreen(Ucglib_ILI9341_18x240x320_HWSPI ucg, float tempe
     //ucg.setPrintPos(60,190);
     ucg.undoScale();
     //ucg.print("UMIDITA'");
-    SERIAL_OUT.print("Refresh Humidity to: "); SERIAL_OUT.println(humidity,1); 
+    SERIAL_OUT.print("Refresh Humidity to: "); SERIAL_OUT.println(humidity, 1);
 
     temp2_prec = temp;
     setpoint2_prec = setpoint;
@@ -241,7 +260,7 @@ void calcoloAndamento(Ucglib_ILI9341_18x240x320_HWSPI ucg, float temperature) {
   ///////////////////////////////////////////////////////////////////////////
   SERIAL_OUT.println("Refresh DeltaT & Trend Arrow ");
   deltaT = temperature - pretemperature;
-  Serial.print("DELTA_T "); Serial.println(deltaT,1);
+  Serial.print("DELTA_T "); Serial.println(deltaT, 1);
   if (temperature > pretemperature && deltaT || 0) {
     ucg.setColor(255, 0, 0);              // Rosso
     ucg.drawTriangle(0, 0, 0, 31, 10, 22);

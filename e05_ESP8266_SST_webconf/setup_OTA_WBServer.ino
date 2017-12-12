@@ -31,16 +31,16 @@ void setup_OTA_WBServer(){
   MDNS.addService("http","tcp",80);
 
   ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
+  web_server.addHandler(&ws);
 
   events.onConnect([](AsyncEventSourceClient *clientSST){
     clientSST->send("hello!",NULL,millis(),1000);
   });
-  server.addHandler(&events);
+  web_server.addHandler(&events);
 
-  server.addHandler(new SPIFFSEditor(http_username,http_password));
+  web_server.addHandler(new SPIFFSEditor(http_username,http_password));
 
-  server.on("/", [](AsyncWebServerRequest *request)
+  web_server.on("/", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -53,7 +53,7 @@ void setup_OTA_WBServer(){
         }
     }); 
     
-   server.on("/index.htm", [](AsyncWebServerRequest *request)
+   web_server.on("/index.htm", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -65,7 +65,7 @@ void setup_OTA_WBServer(){
        request->send(response);
         }
     });
-     server.on("/crono.htm", [](AsyncWebServerRequest *request)
+     web_server.on("/crono.htm", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -77,7 +77,7 @@ void setup_OTA_WBServer(){
        request->send(response);
         }
     });
-     server.on("/crono1.htm", [](AsyncWebServerRequest *request)
+     web_server.on("/crono1.htm", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -89,7 +89,7 @@ void setup_OTA_WBServer(){
        request->send(response);
         }
     });
-    server.on("/setting.htm", [](AsyncWebServerRequest *request)
+    web_server.on("/setting.htm", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -101,7 +101,7 @@ void setup_OTA_WBServer(){
        request->send(response);
         }
     });
-    server.on("/graph.htm", [](AsyncWebServerRequest *request)
+    web_server.on("/graph.htm", [](AsyncWebServerRequest *request)
     {       
         if (!request->authenticate(http_username,http_password))          
             {
@@ -114,36 +114,36 @@ void setup_OTA_WBServer(){
         }
     });
   
-  server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.printf("GET /heap");
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
     
-  server.on("/away_ON", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/away_ON", HTTP_GET, [](AsyncWebServerRequest *request){
     B_away_WBS=1;
     Serial.printf("\nGET /away_ON");
     request->redirect("/index.htm");
   });
   
-  server.on("/away_OFF", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/away_OFF", HTTP_GET, [](AsyncWebServerRequest *request){
     B_away_WBS=0;
     Serial.printf("\nGET /away_OFF");
     request->redirect("/index.htm");
   });
 
-  server.on("/powerfull_ON", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/powerfull_ON", HTTP_GET, [](AsyncWebServerRequest *request){
     B_powerfull_WBS=1;
     Serial.printf("\nGET /powerfull_ON");
     request->redirect("/index.htm");
   });
   
-  server.on("/powerfull_OFF", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/powerfull_OFF", HTTP_GET, [](AsyncWebServerRequest *request){
     B_powerfull_WBS=0;
     Serial.printf("\nGET /powerfull_OFF");
     request->redirect("/index.htm");
   });
   
-  server.on("/all", HTTP_GET, [](AsyncWebServerRequest *request){
+  web_server.on("/all", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.printf("\nGET /all");
     String json = "{";
     json += "\"heap\":"+String(ESP.getFreeHeap());
@@ -158,9 +158,9 @@ void setup_OTA_WBServer(){
     request->send(200, "application/json", json);
   });
 
-    server.serveStatic("/", SPIFFS, "/"); //.setDefaultFile("index.htm");
+    web_server.serveStatic("/", SPIFFS, "/"); //.setDefaultFile("index.htm");
 
-  server.onNotFound([](AsyncWebServerRequest *request){
+  web_server.onNotFound([](AsyncWebServerRequest *request){
     Serial.printf("NOT_FOUND: ");
     if(request->method() == HTTP_GET)
       Serial.printf("GET");
@@ -207,14 +207,14 @@ void setup_OTA_WBServer(){
 
     request->send(404);
   });
-  server.onFileUpload([](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
+  web_server.onFileUpload([](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
     if(!index)
       Serial.printf("UploadStart: %s\n", filename.c_str());
     Serial.printf("%s", (const char*)data);
     if(final)
       Serial.printf("UploadEnd: %s (%u)\n", filename.c_str(), index+len);
   });
-  server.onRequestBody([](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+  web_server.onRequestBody([](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
       AsyncWebHeader* h = request->getHeader("Referer");
       Serial.printf("MyHeader: %s\n", h->value().c_str());
       String cerca=h->value().c_str();
@@ -293,6 +293,6 @@ void setup_OTA_WBServer(){
     Serial.println("BOOTUP CLOSED");
   #endif
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  server.begin();
+  web_server.begin();
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 }  

@@ -4,7 +4,6 @@
     -ILI9341 with SPI connection, via UEXT connector
     -Rotary Encoder with pushbutton & status LED
     -DHT22 Temperature & Humidity Sensor
-
   This example is only supported on ESP8266.
   Developed by mcbittech & fazioa
 ***************************************************************************/
@@ -102,7 +101,7 @@ Ucglib_ILI9341_18x240x320_HWSPI ucg(/*cd=*/ 2 , /*cs=*/ 15);
 //WBServer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#ifndef DYNAMIC_CONNECTION
-AsyncWebServer server(80);
+AsyncWebServer web_server(80);
 //#endif
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
@@ -128,7 +127,7 @@ void setup()
   SERIAL_OUT.begin(115200);
   Serial.setDebugOutput(true);  //debug WBServer
 
-  
+
   //SPIFFS
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
   SPIFFS.begin();
@@ -166,7 +165,7 @@ void setup()
 
   display_print_splash_screen(ucg);
   Initialize();
-  extern AsyncWebServer server;
+  extern AsyncWebServer web_server;
 #if(DYNAMIC_CONNECTION)
   DYNAMIC_CONNECTION_Init();
 #else
@@ -286,7 +285,7 @@ void loop()
             }
             else if (getLayout2()) {
               SERIAL_OUT.println("display_setpointPage - layout 2");
-              display_layout2_Setpoint(ucg, getEncoderValue(), getSoulissSystemState(), bChildLock);
+              display_layout2_Setpoint(ucg, getEncoderValue(), getSoulissSystemState(), bChildLock, B_away_WBS == 1, B_powerfull_WBS == 1);
             }
           }
           encoderValue_prec = getEncoderValue();
@@ -577,7 +576,7 @@ void loop()
             if (getLayout1()) {
               display_layout1_HomeScreen(ucg, temperature, humidity, setpoint, getSoulissSystemState(), bChildLock);
             } else if (getLayout2()) {
-              display_layout2_Setpoint(ucg, getEncoderValue(), getSoulissSystemState(), bChildLock);
+              display_layout2_Setpoint(ucg, getEncoderValue(), getSoulissSystemState(), bChildLock, B_away_WBS == 1 , B_powerfull_WBS == 1);
             }
             break;
           case PAGE_TOPICS1:
@@ -804,7 +803,7 @@ void getTemp() {
     //Import temperature into T31 Thermostat
     ImportAnalog(SLOT_THERMOSTAT + 1, &temperature);
     ImportAnalog(SLOT_TEMPERATURE, &temperature);
-    S_temperature_WBS=temperature;//to WBServer
+    S_temperature_WBS = temperature; //to WBServer
   } else {
     bFlagBegin = true;
   }
@@ -815,7 +814,7 @@ void getTemp() {
   if (!isnan(fVal)) {
     humidity = fVal;
     ImportAnalog(SLOT_HUMIDITY, &humidity);
-    S_humidity_WBS=humidity;//to WBServer
+    S_humidity_WBS = humidity; //to WBServer
   } else {
     bFlagBegin = true;
   }
@@ -835,7 +834,7 @@ void initScreen() {
   SERIAL_OUT.println("clearScreen ok");
   if (getLayout1()) {
     SERIAL_OUT.println("HomeScreen Layout 1");
-    
+
     display_layout1_HomeScreen(ucg, temperature, humidity, setpoint, getSoulissSystemState(), bChildLock);
     getTemp();
   }
@@ -879,23 +878,23 @@ void publishHeating_ON_OFF() {
 
 //WBServer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+void onWsEvent(AsyncWebSocket * web_server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
-    Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+    Serial.printf("ws[%s][%u] connect\n", web_server->url(), client->id());
     client->printf("Hello Client %u :)", client->id());
     client->ping();
   } else if (type == WS_EVT_DISCONNECT) {
-    Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+    Serial.printf("ws[%s][%u] disconnect: %u\n", web_server->url(), client->id());
   } else if (type == WS_EVT_ERROR) {
-    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+    Serial.printf("ws[%s][%u] error(%u): %s\n", web_server->url(), client->id(), *((uint16_t*)arg), (char*)data);
   } else if (type == WS_EVT_PONG) {
-    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len) ? (char*)data : "");
+    Serial.printf("ws[%s][%u] pong[%u]: %s\n", web_server->url(), client->id(), len, (len) ? (char*)data : "");
   } else if (type == WS_EVT_DATA) {
     AwsFrameInfo * info = (AwsFrameInfo*)arg;
     String msg = "";
     if (info->final && info->index == 0 && info->len == len) {
       //the whole message is in a single frame and we got all of it's data
-      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
+      Serial.printf("ws[%s][%u] %s-message[%llu]: ", web_server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
 
       if (info->opcode == WS_TEXT) {
         for (size_t i = 0; i < info->len; i++) {
@@ -918,11 +917,11 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
       //message is comprised of multiple frames or the frame is split into multiple packets
       if (info->index == 0) {
         if (info->num == 0)
-          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
-        Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+          Serial.printf("ws[%s][%u] %s-message start\n", web_server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+        Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", web_server->url(), client->id(), info->num, info->len);
       }
 
-      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
+      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", web_server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
 
       if (info->opcode == WS_TEXT) {
         for (size_t i = 0; i < info->len; i++) {
@@ -938,9 +937,9 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
       Serial.printf("%s\n", msg.c_str());
 
       if ((info->index + len) == info->len) {
-        Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
+        Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", web_server->url(), client->id(), info->num, info->len);
         if (info->final) {
-          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+          Serial.printf("ws[%s][%u] %s-message end\n", web_server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
           if (info->message_opcode == WS_TEXT)
             client->text("I got your text message");
           else
@@ -964,5 +963,3 @@ void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_
   yield();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
