@@ -8,6 +8,11 @@
   Developed by mcbittech & fazioa
 ***************************************************************************/
 // Let the IDE point to the Souliss framework
+#define T3N_DEADBAND_INSKETCH
+#define Souliss_T3n_DeadBand      0.1     // Degrees Deadband
+#define T3N_HYSTERESIS_INSKETCH
+#define Souliss_T3n_Hysteresis      0.1     // Degrees Hysteresis
+
 #include "SoulissFramework.h"
 
 #include <ESP8266WiFi.h>
@@ -91,6 +96,8 @@ float fTopic_C5_Output;
 float fTopic_C6_Output;
 
 boolean bChildLock = false;
+
+
 
 // Menu
 MenuSystem* myMenu;
@@ -840,6 +847,7 @@ void initScreen() {
   }
   else if (getLayout2()) {
     SERIAL_OUT.println("HomeScreen Layout 2");
+    
     getTemp();
     display_layout2_HomeScreen(ucg, temperature, humidity, setpoint);
     display_layout2_print_circle_white(ucg);
