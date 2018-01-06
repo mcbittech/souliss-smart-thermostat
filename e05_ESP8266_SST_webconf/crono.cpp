@@ -170,7 +170,12 @@ void setDay(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
   ucg.setFontMode(UCG_FONT_MODE_TRANSPARENT);
   ucg.setFont(ucg_font_helvB14_hf);
   ucg.setPrintPos(70, 235);
+#ifdef LANG_en_US
+//@rmackinnon: Addition of en_US locale
+  ucg.print("DAY:");
+#else
   ucg.print("GIORNO:");
+#endif
   changeday = 1;
   while (pushed == 0) {
     if (changeday == 1) {
@@ -181,6 +186,37 @@ void setDay(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
       ucg.setColor(255, 255, 255);      //Bianco
       ucg.setPrintPos(160, 235);
       daySelected = dDaysel;
+#ifdef LANG_en_US
+//@rmackinnon: Addition of en_US locale
+      switch (dDaysel) {
+        case 1:
+          ucg.print("SUNDAY");
+          drawBoxes(ucg);
+          break;
+        case 2:
+          ucg.print("MONDAY");
+          drawBoxes(ucg);
+          break;
+        case 3:
+          ucg.print("TUESDAY");
+          drawBoxes(ucg);
+          break;
+        case 4:
+          ucg.print("WEDNESDAY");
+          drawBoxes(ucg);
+          break;
+        case 5:
+          ucg.print("THURSDAY");
+          drawBoxes(ucg);
+          break;
+        case 6:
+          ucg.print("FRIDAY");
+          drawBoxes(ucg);
+          break;
+        case 7:
+          ucg.print("SATURDAY");
+          drawBoxes(ucg);
+#else
       switch (dDaysel) {
         case 1:
           ucg.print("DOMENICA");
@@ -209,6 +245,7 @@ void setDay(Ucglib_ILI9341_18x240x320_HWSPI ucg) {
         case 7:
           ucg.print("SABATO");
           drawBoxes(ucg);
+#endif
           break;
         default:
           break;
